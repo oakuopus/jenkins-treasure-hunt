@@ -780,11 +780,14 @@ const input = [
     "BBFBFFFLLL",
     "FBFBFBFLRR",
     "BFBFFFFRLL",
-  ];
+];
+//global array to store all locations of holes
+var allGrids = []
+var treasureGrid //global var to store the treasure location
 function highestLowest(input){
-    var allGrids = []
+    // use foreach to iterate of every different code, and declaring individual codes as id
     input.forEach(function(id) {
-        var row = id.substring(0,7)
+        var row = id.substring(0,7) // create row and column codes by splitting the id at index 7
         var column = id.substring(7)
         var rowValue = [
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
@@ -795,9 +798,9 @@ function highestLowest(input){
             80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
             96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
             112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127
-        ];
+        ]; //array to that will be sliced and reset to find the row and column off of the codes
         colValue = [0,1,2,3,4,5,6,7]
-        for(x in row){
+        for(x in row){ //run for loop 7 times, if the first charachter in the row code is F, 
             row[x] == "F" ? rowValue = rowValue.slice(0, rowValue.length/2) : rowValue = rowValue.slice(rowValue.length/2)
         }
         for(x in column){
@@ -811,8 +814,121 @@ function highestLowest(input){
 }
 highestLowest(input)
 
-function missingGrids(input){
-    
+function missingGrids(data){
+    let everyNum = []
+    for(let i = 51; i < 833; i++){
+        everyNum.push(i)
+    }
+    treasureGrid = everyNum.filter(function(id) {
+        if(!allGrids.includes(id)){
+            return id
+        }
+    })
+    treasureGrid = Number(treasureGrid)
+    console.log("Missing Treasure Grid: "+ treasureGrid)
 }
-missingGrids(input)
+missingGrids(allGrids)
 
+function reCode(grid){
+    var missRow, missCol
+    var ogGrid = grid
+    for(let i = 0; i < 8; i++){
+        grid = ogGrid
+        grid -= i
+        grid /= 8
+        if(Number.isInteger(grid)){
+            missRow = grid
+            missCol = i
+        }
+    }
+    console.log(missRow +":"+ missCol)
+    var Value = [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+        32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+        64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+        80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+        96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+        112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127
+    ];
+    var liF = [], liB = []
+    var code = "", colCode = ""
+    for(i = 0; i < 7; i++){
+        liF = Value.slice(0, Math.ceil(Value.length/2))
+        liB = Value.slice(Math.ceil(Value.length/2))
+        if(liF.includes(missRow)){
+            Value = liF
+            code += "F"   
+        }else{
+            Value = liB
+            code += "B"
+        }
+    }
+    Value = [0,1,2,3,4,5,6,7], liF = [], liB = []
+    for(i = 0; i < 3; i++){
+        liF = Value.slice(0, Math.ceil(Value.length/2))
+        liB = Value.slice(Math.ceil(Value.length/2))
+        if(liF.includes(missCol)){
+            Value = liF
+            colCode += "L"  
+        }else{
+            Value = liB
+            colCode += "R"
+        }
+    }
+    console.log(code+colCode)
+}
+reCode(treasureGrid)
+
+function allRowsCols(allGrids){
+    var dugRows = [], dugCols = []
+    allGrids.map(function(x){
+        ogX = x
+        for(let i = 0; i < 8; i++){
+            x = ogX
+            x -= i
+            x /= 8
+            if(Number.isInteger(x)){
+                dugRows.push(x)
+                dugCols.push(i)
+            }
+        }
+    })
+    let rTotal = dugRows.reduce((accumulator, current) =>{
+        return accumulator + current
+    })
+    let cTotal = dugCols.reduce((accumulator, current) =>{
+        return accumulator + current
+    })
+    keycode = (rTotal * cTotal) /1000
+    console.log("Keycode: "+ keycode)
+}
+
+allRowsCols(allGrids)
+
+function nextLevel(allGrids){
+    newline = 1
+    var everyGrid = []
+    for(let i = 0; i < 1027; i++){
+        everyGrid.push(i)
+    }
+    everyGrid.map(function(x)  {
+        if(allGrids.includes(x)){
+            if(newline % 8){
+                process.stdout.write("#")
+            }else{
+                console.log("#")
+            }
+        }else{
+            if(newline % 8){
+                process.stdout.write(".")
+            }else{
+                console.log(".")
+            }
+        }
+        newline++
+    })  
+}
+
+nextLevel(allGrids)
